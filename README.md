@@ -1,8 +1,8 @@
-# H2
+# H2 - HTTP/2 implementation in Ruby
 
-Welcome to your new gem! In this directory, you'll find the files you need to be able to package up your Ruby library into a gem. Put your Ruby code in the file `lib/h2`. To experiment with that code, run `bin/console` for an interactive prompt.
+__Early development phase, doesn't work__
 
-TODO: Delete this and the text above, and describe your gem
+https://tools.ietf.org/html/draft-ietf-httpbis-http2-17
 
 ## Installation
 
@@ -22,7 +22,7 @@ Or install it yourself as:
 
 ## Usage
 
-TODO: Write usage instructions here
+TBD
 
 ## Development
 

@@ -54,22 +54,22 @@ https://tools.ietf.org/html/draft-ietf-httpbis-http2-17#section-3
 - `h2c`: HTTP/2 (cleartext)
   - Used in HTTP/1.1 `Upgrade` header
 
-      ### 3.2. Starting HTTP/2 for "http" URIs
+### 3.2. Starting HTTP/2 for "http" URIs
 
-      ```
-      > GET / HTTP/1.1
-      > Host: ...
-      > Connection: Upgrade, HTTP2-Settings
-      > Upgrade: h2c
-      > HTTP2-Settings: ...
-      >
-      >
-      < HTTP/1.1 101 Switching Protocols
-      < Connection: Upgrade
-      < Upgrade: h2c
-      <
-      < [ HTTP/2 ]
-      ```
+```
+> GET / HTTP/1.1
+> Host: ...
+> Connection: Upgrade, HTTP2-Settings
+> Upgrade: h2c
+> HTTP2-Settings: ...
+>
+>
+< HTTP/1.1 101 Switching Protocols
+< Connection: Upgrade
+< Upgrade: h2c
+<
+< [ HTTP/2 ]
+```
 
 - [HTTP2-Settings](https://tools.ietf.org/html/draft-ietf-httpbis-http2-17#section-3.2.1): Required.
   - 3.2.1.
@@ -93,18 +93,18 @@ https://tools.ietf.org/html/draft-ietf-httpbis-http2-17#section-3
   - _half closed_
   - After upgrading, the stream is used for the response
 
-      ### 3.3. Starting HTTP/2 for "https" URIs
+### 3.3. Starting HTTP/2 for "https" URIs
 
 - TLS ALPN with `h2` protocol identifier
 - after TLS negotiation, both server and client MUST send a _connection preface_
 
-    ### 3.4. Starting HTTP/2 with Prior Knowledge
+### 3.4. Starting HTTP/2 with Prior Knowledge
 
 - mentioning [ALT-SVC; HTTP Alternative Services](https://tools.ietf.org/html/draft-ietf-httpbis-alt-svc-06)
 
-    TODO
+TODO
 
-    ### 3.5. HTTP/2 connection preface
+### 3.5. HTTP/2 connection preface
 
 - client's _connection preface_ starts with `"PRI * HTTP/2.0\r\n\r\nSM\r\n\r\n"`
   - MUST be followed by `SETTINGS` frame (which may be empty)
@@ -115,11 +115,11 @@ https://tools.ietf.org/html/draft-ietf-httpbis-http2-17#section-3
 - Clients are permitted to send additional frames to server without waiting responses from server, for minimize latency
 - Clients and servers MUST treat invalid connection preface as PROTOCOL_ERROR
 
-    ## 4. HTTP Frames
+## 4. HTTP Frames
 
-    ### Format
+### Format
 
-    9 bytes (72 bits)
+9 bytes (72 bits)
 
 - 24 bit (3 bytes): Length (unsigned int)
   - without frame header
@@ -133,7 +133,7 @@ https://tools.ietf.org/html/draft-ietf-httpbis-http2-17#section-3
 - 31 bit (3 bytes + 7 bit): Stream Identifier (unsigned int)
   - value `0x0`: reserved for a whole connection
 
-      ### 4.2. Frame Size
+### 4.2. Frame Size
 
 - `SETTINGS_MAX_FRAME_SIZE` setting
   - 2^14 (16384) .. 2^24-1 (16777215) bytes
@@ -143,7 +143,7 @@ https://tools.ietf.org/html/draft-ietf-httpbis-http2-17#section-3
 - FRAME_SIZE_ERROR for any violations (small, bigger, ...)
   - it's _connection error_ when the frame can alter the state of connection
 
-      ### 4.3. Header Compression and Decompression
+### 4.3. Header Compression and Decompression
 
 - _header lists_ are collection of _header fields_
   - serialized into a _header block_ using HTTP Header Copression (HPACK)
@@ -164,7 +164,7 @@ https://tools.ietf.org/html/draft-ietf-httpbis-http2-17#section-3
   - `PUSH_PROMISE`
   - `CONTINUATION`
 
-      ## 5. Streams and Multiplexing
+## 5. Streams and Multiplexing
 
 - _stream_, independent, bi-directional sequence of frames, exchanges between client and server
   - single HTTP/2 _connection_ can contain multiple concurrently streams
@@ -172,54 +172,54 @@ https://tools.ietf.org/html/draft-ietf-httpbis-http2-17#section-3
   - can be closed by either endpoint
   - frames order is significant (e.g. `HEADERS`, `DATA`)
 
-      ### 5.1. Frame states
+### 5.1. Frame states
 
-      Quoting:
+Quoting:
 
-      ```
-      +--------+
-      send PP |        | recv PP
-      ,--------|  idle  |--------.
-      /         |        |         \
-      v          +--------+          v
-      +----------+          |           +----------+
-      |          |          | send H /  |          |
-      ,------| reserved |          | recv H    | reserved |------.
-      |      | (local)  |          |           | (remote) |      |
-      |      +----------+          v           +----------+      |
-      |          |             +--------+             |          |
-      |          |     recv ES |        | send ES     |          |
-      |   send H |     ,-------|  open  |-------.     | recv H   |
-      |          |    /        |        |        \    |          |
-      |          v   v         +--------+         v   v          |
-      |      +----------+          |           +----------+      |
-      |      |   half   |          |           |   half   |      |
-      |      |  closed  |          | send R /  |  closed  |      |
-      |      | (remote) |          | recv R    | (local)  |      |
-      |      +----------+          |           +----------+      |
-      |           |                |                 |           |
-      |           | send ES /      |       recv ES / |           |
-      |           | send R /       v        send R / |           |
-      |           | recv R     +--------+   recv R   |           |
-      | send R /  `----------->|        |<-----------'  send R / |
-      | recv R                 | closed |               recv R   |
-      `----------------------->|        |<----------------------'
-      +--------+
+```
++--------+
+send PP |        | recv PP
+,--------|  idle  |--------.
+/         |        |         \
+v          +--------+          v
++----------+          |           +----------+
+|          |          | send H /  |          |
+,------| reserved |          | recv H    | reserved |------.
+|      | (local)  |          |           | (remote) |      |
+|      +----------+          v           +----------+      |
+|          |             +--------+             |          |
+|          |     recv ES |        | send ES     |          |
+|   send H |     ,-------|  open  |-------.     | recv H   |
+|          |    /        |        |        \    |          |
+|          v   v         +--------+         v   v          |
+|      +----------+          |           +----------+      |
+|      |   half   |          |           |   half   |      |
+|      |  closed  |          | send R /  |  closed  |      |
+|      | (remote) |          | recv R    | (local)  |      |
+|      +----------+          |           +----------+      |
+|           |                |                 |           |
+|           | send ES /      |       recv ES / |           |
+|           | send R /       v        send R / |           |
+|           | recv R     +--------+   recv R   |           |
+| send R /  `----------->|        |<-----------'  send R / |
+| recv R                 | closed |               recv R   |
+`----------------------->|        |<----------------------'
++--------+
 
-      send:   endpoint sends this frame
-      recv:   endpoint receives this frame
+send:   endpoint sends this frame
+recv:   endpoint receives this frame
 
-      H:  HEADERS frame (with implied CONTINUATIONs)
-      PP: PUSH_PROMISE frame (with implied CONTINUATIONs)
-      ES: END_STREAM flag
-      R:  RST_STREAM frame
-      ```
+H:  HEADERS frame (with implied CONTINUATIONs)
+PP: PUSH_PROMISE frame (with implied CONTINUATIONs)
+ES: END_STREAM flag
+R:  RST_STREAM frame
+```
 
 - `PRIORITY` frame can be sent in any stream state
 - open state
   - observe _stream level flow control limits_
 
-      #### 5.1.1. Stream Identifiers
+#### 5.1.1. Stream Identifiers
 
 - 31-bit unsigned integer
 - initiated by a client MUST use odd numbers
@@ -232,7 +232,7 @@ https://tools.ietf.org/html/draft-ietf-httpbis-http2-17#section-3
     - For example, stream 5 will go `closed` state from `idle` state when stream 7 gets opened
 - stream identifier can't be reused; long-lived connection may exhaust the all available stream identifier. Clients can establish a new connection for new streams. Also server can send `GOAWAY` for such case.
 
-    #### 5.1.2. Stream Concurrency
+#### 5.1.2. Stream Concurrency
 
 - `SETTINGS_MAX_CONCURRENT_STREAMS`
   - effect to specific endpoint; client sets limit for servers, and servers sets limit for clients.
@@ -242,11 +242,11 @@ https://tools.ietf.org/html/draft-ietf-httpbis-http2-17#section-3
   - (error code choice changes behavior around automatic retry -- ref. Section 8.1.4.)
 - When endpoint wishes to reduce the value of limit, can close streams or allow streams to complete (?) TODO
 
-    ### 5.2. Flow Control
+### 5.2. Flow Control
 
 - `WINDOW_UPDATE` frame
 
-    #### 5.2.1. Frow Control Principles
+#### 5.2.1. Frow Control Principles
 
 - HTTP/2 flow control aims to allow a veriety of algorithms, without requiring protocol specification change
 - flow control is
@@ -261,7 +261,7 @@ https://tools.ietf.org/html/draft-ietf-httpbis-http2-17#section-3
         6. Can't be disabled
         7. HTTP/2 only defines the format and semantics of `WINDOW_UPDATE` frame
 
-        #### 5.2.2. Appropiate Use of Flow Control
+#### 5.2.2. Appropiate Use of Flow Control
 
 - flow control is defined to protect endpoints under resource constraints
   - A proxy: share memory between many connections
@@ -273,7 +273,7 @@ https://tools.ietf.org/html/draft-ietf-httpbis-http2-17#section-3
   - for full awareness for bandwidth-delay products, flow control can be difficult.
 - receiver MUST read TCP receive buffer in a timely fashion, or results deadlock when critical frames (e.g. `WINDOW_UPDATE`) aren't read and acted.
 
-    ### 5.3. Stream priority
+### 5.3. Stream priority
 
 - client can assign a priority for new stream
   - use prioritization information in `HEADERS` frame (which opening stream)
@@ -285,7 +285,7 @@ https://tools.ietf.org/html/draft-ietf-httpbis-http2-17#section-3
   - relative weight
 - expressing priority is a suggestion
 
-    #### 5.3.1. Stream Dependencies
+#### 5.3.1. Stream Dependencies
 
 - no dependency = priority value `0`, which means the root of tree
 - A stream depends on another stream is a _dependent stream_
@@ -296,17 +296,17 @@ https://tools.ietf.org/html/draft-ietf-httpbis-http2-17#section-3
 - A _dependent stream_ SHOULD only be allocated resources, if all of the streams are either closed or it's not possible to make progress
 - A stream can't depend on itself. For violations, an endpoint MUST treat s a stream error `PROTOCOL_ERROR`
 
-    #### 5.3.2. Dependency Weighting
+#### 5.3.2. Dependency Weighting
 
 - _dependent streams_ are allocated weight in 1..256 (integer)
 - Streams with the same parent SHOULD be allocated resources proportionally based on their weight
 
-    #### 5.3.3. Reprioritization
+#### 5.3.3. Reprioritization
 
 - `PRIORITY` frame
 - _dependent stream_ moves with their parent, when parent gets reprioritized
 
-    #### 5.3.4. Prioritization State Management
+#### 5.3.4. Prioritization State Management
 
 - when a stream is removed from the dependency tree
   - its dependencies can be dependent on the parent of the closed stream (? TODO)
@@ -325,18 +325,18 @@ https://tools.ietf.org/html/draft-ietf-httpbis-http2-17#section-3
 
     TODO
 
-    #### 5.3.5. Default Priorities
+#### 5.3.5. Default Priorities
 
 - all streams depends on `0` basically
 - but _Pushed streams_ depends on their associated streasm.
 - For both case, weight are initially 16.
 
-    ### 5.4. Error Handling
+### 5.4. Error Handling
 
 - _connection error:_ makes the entire connection unusable
 - _stream error:_ for individual streasm
 
-    #### 5.4.1. Connection Error Handling
+#### 5.4.1. Connection Error Handling
 
 - An endpoint encountered a _connection error_ SHOULD first send a `GOAWAY` frame
   - with the stream identifier of the last stream that successfully received from its peer.
@@ -345,7 +345,7 @@ https://tools.ietf.org/html/draft-ietf-httpbis-http2-17#section-3
 - An endpoint MAY choose to treat a _stream error_ as a _connection error._
   - Endpoints SHOULD send a `GOAWAY` when ending a connection
 
-      #### 5.4.2. Stream Error Handling
+#### 5.4.2. Stream Error Handling
 
 - An endpoint sends `RST_STREAM` frame containing the stream identifier and error code
 - `RST_STREAM` frame is the last frame that endpoint can send on a stream
@@ -355,11 +355,11 @@ https://tools.ietf.org/html/draft-ietf-httpbis-http2-17#section-3
   - but MAY send `RST_STREAM` if it receives frames on a closed stream after more than a RTT time
 - An endpoint MUST NOT responds a `RST_STREAM` for a `RST_STREAM` to avoid loops.
 
-    #### 5.4.3. Connection Termination
+#### 5.4.3. Connection Termination
 
     TODO
 
-    ### 5.5. Extending HTTP/2
+### 5.5. Extending HTTP/2
 
 - frame types, settings, error codes
 - Implementation MUST ignore/discard unknown/unsupported values (where supports extension)
@@ -370,9 +370,9 @@ https://tools.ietf.org/html/draft-ietf-httpbis-http2-17#section-3
 - This document doesn't define such negotiation, but `SETTINGS` could be used for such purpose.
   - if `SETTINGS` is used for extension negotioation, the initial value MUST be state like disabled.
 
-      ## 6. Frame Definitions
+## 6. Frame Definitions
 
-      ### 6.1. DATA
+### 6.1. DATA
 
 - `DATA` frames (type: `0x0`)
 - arbitrary variable-length sequences of bytes on stream
@@ -399,7 +399,7 @@ https://tools.ietf.org/html/draft-ietf-httpbis-http2-17#section-3
   - If pedding length is  frame payload or greater, the recipient MUST treat as a _connection error_ `PROTOCOL_ERROR`
   - A frame can be increased in size by 1 byte by including Pad Length with `0`
 
-      ### 6.2. HEADERS
+### 6.2. HEADERS
 
 - `HEADER` frame (type: `0x1`)
 - used to open stream
@@ -439,7 +439,7 @@ https://tools.ietf.org/html/draft-ietf-httpbis-http2-17#section-3
 - MUST be associated with a stream
   - the recipient MUST respond with a _connection error_ `PROTOCOL_ERROR` for violations
 
-      ### 6.3. PRIORITY
+### 6.3. PRIORITY
 
 - `PRIORITY` frame (type: `0x2`)
 - priority advertisement from sender for a stream
@@ -459,7 +459,7 @@ https://tools.ietf.org/html/draft-ietf-httpbis-http2-17#section-3
   - Allowing reprioritization of a dependent group by unused or closed _parent streams._
 - Length other than 5 bytes MUST be treated as a _stream error_ `FRAME_SIZE_ERROR`
 
-    ### 6.4. RST_STREAM
+### 6.4. RST_STREAM
 
 - `RST_STREAM` (type: `0x3`)
 - immediate termination of a stream
@@ -478,7 +478,7 @@ https://tools.ietf.org/html/draft-ietf-httpbis-http2-17#section-3
   - the recipient MUST treat as a _connection error_ `PROTOCOL_ERROR` for violations
 - Length other than 4 bytes MUST be treated as a _connection error_ `FRAME_SIZE_ERROR`
 
-    ### 6.5. SETTINGS
+### 6.5. SETTINGS
 
 - `SETTINGS` frame (type: `0x4`)
 - configuration parameters
@@ -499,14 +499,14 @@ https://tools.ietf.org/html/draft-ietf-httpbis-http2-17#section-3
   - violation, the endpoint MUST respond ith a _connection error_ `PROTOCOL_ERROR`
 - Badly formed or incomplete `SETTINGS` frme MUST be treated as a _connection error_ `PROTOCOL_ERROR`
 
-    #### 6.5.1. SETTINGS Format
+#### 6.5.1. SETTINGS Format
 
 - consists of zero or more parameters
 - fields (each)
   - 16 bit: Identifier (unsigned)
   - 32 bit: Value (unsigned)
 
-      #### 6.5.2 Defined SETTINGS Parameters
+#### 6.5.2 Defined SETTINGS Parameters
 
 - `SETTINGS_HEADER_TABLE_SIZE` (`0x1`)
   - maximum size of the header compression table
@@ -546,7 +546,7 @@ https://tools.ietf.org/html/draft-ietf-httpbis-http2-17#section-3
 
 - An endpoint MUST ignore unknown or unsupported settings
 
-    #### 6.5.2. Settings Synchronization
+#### 6.5.2. Settings Synchronization
 
 - recipient MUST apply the update parameters ASAP upon receipt
 - the values MUST be processed in the order they appear
@@ -555,7 +555,7 @@ https://tools.ietf.org/html/draft-ietf-httpbis-http2-17#section-3
 - Upon receiving a `ACK` flag, sender can rely on the new settings
 - Sender MAY issue a _connection error_ `SETTINGS_TIMEOUT` after a reasonable amount of time when sender didn't receive `ACK`.
 
-    ### 6.6. PUSH_PROMISE
+### 6.6. PUSH_PROMISE
 
 - `PUSH_PROMISE` frame (type: `0x5`)
 - fields:
@@ -591,7 +591,7 @@ https://tools.ietf.org/html/draft-ietf-httpbis-http2-17#section-3
 - Sender MUST ensure the _promised stream_ is a valid as new _stream identifier_
   - violations, A receiver MUST treat the receipt of a `PUSH_PROMISE` as a _connection error_ `PROTOCOL_ERROR`
 
-      ### 6.7. PING
+### 6.7. PING
 
 - `PING` frame (type: `0x6`)
 - mechanism for measuring minimal RTT
@@ -607,7 +607,7 @@ https://tools.ietf.org/html/draft-ietf-httpbis-http2-17#section-3
   - violations, the recipient MUST respond with a _connection error_ `PROTOCOL_ERROR`
 - length other than 8 bytes MUST be treated as a connection error `FRAME_SIZE_ERROR`
 
-    ### 6.8. GOAWAY
+### 6.8. GOAWAY
 
 - `GOAWAY` frame (type: `0x7`)
 - informs the remote peer to stop creating streams
@@ -642,7 +642,7 @@ https://tools.ietf.org/html/draft-ietf-httpbis-http2-17#section-3
 - Endpoints MAY append data to the payload, for diagnostic purpose.
   - could contain privacy-sensitive data, so MUST have adequate safeguards when logging
 
-      ### 6.9. WINDOW_UPDATE
+### 6.9. WINDOW_UPDATE
 
 - `WINDOW_UPDATE` frame (type: `0x8`)
 - for flow control
@@ -667,7 +667,7 @@ https://tools.ietf.org/html/draft-ietf-httpbis-http2-17#section-3
 - A receiver that received a flow controlled frame MUST always account for its contribution against the window unless the receiver treats this as a connection error (? TODO)
 - Length other than 4 bytes MUST be treated as a _connection error_ `FRAME_SIZE_ERROR`
 
-    #### 6.9.1. The Flow Control Window
+#### 6.9.1. The Flow Control Window
 
 - 2 flow control windows: for stream and for connection
 - Sender MUST NOT send a _flow controlled frame_ with a length that exceeds the space available in either the window (advertised from receiver)
@@ -677,7 +677,7 @@ https://tools.ietf.org/html/draft-ietf-httpbis-http2-17#section-3
   - TODO: if a sender receives (!?) ...
   - when exceeding this maximum, it MUST terminate stream or the connection.
 
-      #### 6.9.2. Initial Flow Control Window Size
+#### 6.9.2. Initial Flow Control Window Size
 
 - initial window size 65535 bytes
 - both endpoints can adjust by setting `SETTINGS_INITIAL_WINDOW_SIZE` for new streams
@@ -689,7 +689,7 @@ https://tools.ietf.org/html/draft-ietf-httpbis-http2-17#section-3
   - A sender MUST track the negative _flow control window_
     - MUST NOT send _flow controlled frames_ until it receives `WINDOW_UPDATE` to update the window to positive
 
-        #### 6.9.3. Reducing the Stream Window Size
+#### 6.9.3. Reducing the Stream Window Size
 
 - A receiver that wishes to use a smaller _flow control window_ can send a `SETTINGS`
   - However receivers MUST be prepared to receive data that exceeds this (???) window size
@@ -698,7 +698,7 @@ https://tools.ietf.org/html/draft-ietf-httpbis-http2-17#section-3
   - TODO
   - the receiver MAY instead send a `RST_STREAM` with `FLOW_CONTROL_ERROR` for the affected streams.
 
-      #### 6.10. CONTINUATION
+#### 6.10. CONTINUATION
 
 - `CONTINUATION` frame (type: `0x9`)
 - to continue a sequence of _header block fragments_
@@ -715,7 +715,7 @@ https://tools.ietf.org/html/draft-ietf-httpbis-http2-17#section-3
 - MUST be preceded by a `HEADERS`, `PUSH_PROMISE` or `CONTINUATION` frame without `END_HEADERS` flag set
   - violations, the recipient MUST respond with a _connection error_ `PROTOCOL_ERROR`
 
-      ## 7. Error Codes
+## 7. Error Codes
 
 - 32-bit fields
 - Used in `RST_STREAM`, `GOAWAY`
@@ -752,11 +752,11 @@ https://tools.ietf.org/html/draft-ietf-httpbis-http2-17#section-3
 - Unknown or unsupported error codes MUST NOT trigger any special behavior
   - MAY be treated by an implementation as being equivalent to `INTERNAL_ERROR` (? TODO)
 
-      ## 8. HTTP Message Exchanges
+## 8. HTTP Message Exchanges
 
 - HTTP/2 is intended to be as compatibile with current use of HTTP as possible.
 
-    ### 8.1. HTTP Request/Response Exchange
+### 8.1. HTTP Request/Response Exchange
 
 - A client sends an HTTP request on a new stream. Server sends an HTTP response on the same stream.
 - HTTP message (request or response) consists of
@@ -784,12 +784,12 @@ https://tools.ietf.org/html/draft-ietf-httpbis-http2-17#section-3
     - after sending complete response
   - Clients MUST NOT discard responses as a result of such `RST_STREAM`
 
-      #### 8.1.1. Upgrading From HTTP/2
+#### 8.1.1. Upgrading From HTTP/2
 
 - Semantics in 101 Switchng Protocols aren't applicatable for a multiplexed protocol
 - Use Alternative protocols.
 
-    #### 8.1.2. HTTP Header Fields
+#### 8.1.2. HTTP Header Fields
 
 - _HTTP header fields_ carry information as a series of key-value pairs.
 - see the _Message Header Field Registry_ maintained at [4]...?
@@ -798,7 +798,7 @@ https://tools.ietf.org/html/draft-ietf-httpbis-http2-17#section-3
   - MUST be converted to lowercase in HTTP/2
     - violations MUST be treated as _malformed_
 
-        ##### 8.1.2.1. Pseudo-Header Fields
+##### 8.1.2.1. Pseudo-Header Fields
 
 - HTTP/1.1 used the _message start-line_ (e.g. `GET /... HTTP/1.1\r\n`) to tell target URI and method of request
 - HTTP/2 uses special pseudo-header fields beginning with `:` char for this purpose
@@ -810,7 +810,7 @@ https://tools.ietf.org/html/draft-ietf-httpbis-http2-17#section-3
   - Endpoints MUST treat a _HTTP message_ that contains invalid pseudo-headers, as _malformed._
   - MUST appear in the _header block_ before regular _header fields._
 
-      ##### 8.1.2.2. Connection-Specific Header Fields
+##### 8.1.2.2. Connection-Specific Header Fields
 
 - HTTP/2 doesn't use the `Connection` header field, connection-specific metadata is conveyed by other means.
 - An endpoint MUST NOT generate an HTTP/2 message containing connectio-specific header fields
@@ -825,7 +825,7 @@ https://tools.ietf.org/html/draft-ietf-httpbis-http2-17#section-3
     - `Transfer-Encoding`
     - `Upgrade`
 
-        ##### 8.1.2.3. Request Pseudo-Header Fields
+##### 8.1.2.3. Request Pseudo-Header Fields
 
 - defined:
   - `:method`
@@ -849,14 +849,14 @@ https://tools.ietf.org/html/draft-ietf-httpbis-http2-17#section-3
   - unless it's a CONNECT request
   - An HTTP request that omits mandatory pseudo-header fields is _malformed_
 
-      ##### 8.1.2.4. Response Pseudo-Header Fields
+##### 8.1.2.4. Response Pseudo-Header Fields
 
 - For HTTP/2 responses, only `:status` pseudo-header field is defined
   - carries HTTP status code
   - MUST be included in all response, or be _malformed_
 - Note: http/2 doesn't define a way to carry the version/reason phrase
 
-    ##### 8.1.2.5. Compressing the Cookie Header Field
+##### 8.1.2.5. Compressing the Cookie Header Field
 
 - `Cookie` _header field_ uses `;` for delimiters
 - For better compression efficiency, `Cookie` _header field_ MAY be split into separate header fields
@@ -873,7 +873,7 @@ https://tools.ietf.org/html/draft-ietf-httpbis-http2-17#section-3
     cookie: c=3
     ```
 
-    ##### 8.1.2.6. Malformed Requests and Responses
+##### 8.1.2.6. Malformed Requests and Responses
 
 - invalid `content-length` _header field_ is also _malformed_
 - Intermediaries (that process HTTP requests/responses) MUST NOT forward a _malformed_ request or response.
@@ -882,11 +882,11 @@ https://tools.ietf.org/html/draft-ietf-httpbis-http2-17#section-3
 - a client MUST NOT accept a malformed response
 - these requirements are intended to protect attacks
 
-    #### 8.1.3. Examples
+#### 8.1.3. Examples
 
     TODO
 
-    #### 8.1.4. Request Reliability Mechanisms in HTTP/2
+#### 8.1.4. Request Reliability Mechanisms in HTTP/2
 
 - HTTP/1.1 client is unable to retry a non-idempotent request when an error occurs
 - HTTP/2 provies mechanisms for providing a guarantee:
